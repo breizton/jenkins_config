@@ -1,5 +1,7 @@
 def nexus_base_url='http://maven2.rd.francetelecom.fr/proxy/content/repositories/inhouse/com/orange/otml/'
 def otml_service='otml-live'
+def otml_service_ip='10.105.93.168'
+def otml_server_port='8080'
 def pf_phase='qualif'
 def pf_name='q5ntv2'
 def metadata_component_release_xml_url = nexus_base_url + otml_service + '/' + 'maven-metadata.xml'
@@ -7,10 +9,12 @@ def metadata_component_release_xml_content = new XmlParser().parse(metadata_comp
 def release = metadata_component_release_xml_content.versioning.release.text()
 def base_dir='/data/ansible_export/ansible/nnxh2760/eat-ansible-UM/IAS'
 
+def list_mail_recipient='samuel.quenea@orange.com,razvan.rosu@orange.com'
+
 job('test_otml-live') {
     steps {
         shell('cd '+base_dir+'\n/usr/bin/ansible-playbook deploy.yml -i ' +pf_phase+'/'+pf_name+'/inventory -e platform_phase='+pf_phase+' -e platform_name='+pf_name+' -e "artifact2install='+otml_service+'" -e "version2install='+release+'"')
-	    httpRequest('http://10.105.93.168:8080/api/live/v1/channels/192') {
+	    httpRequest('http://'+otml_service_ip+':'+otml_server_port+'/api/live/v1/channels/192') {
             httpMode('GET')
             returnCodeBuildRelevant()
             logResponseBody()
@@ -19,8 +23,8 @@ job('test_otml-live') {
 	publishers {
 		extendedEmail {
             defaultSubject('JENKINS BUILD FOR UM LIVE version '+release)
-            defaultContent('$DEFAULT_CONTENT.\nNew version installed is ' +release)
-			recipientList('samuel.quenea@orange.com')
+            defaultContent('$DEFAULT_CONTENT.\n\nNew version installed is ' +release+'\n\nA test have been made on the API http://10.105.93.168:8080/api/live/v1/channels/192 on respond a 200 OK')
+			recipientList(list_mail_recipient)
 			contentType('text/html')
 			triggers {
 				always()

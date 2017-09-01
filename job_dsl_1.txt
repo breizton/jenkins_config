@@ -10,7 +10,11 @@ def base_dir='/data/ansible_export/ansible/nnxh2760/eat-ansible-UM/IAS'
 job('test_otml-live') {
     steps {
         shell('cd '+base_dir+';/usr/bin/ansible-playbook deploy.yml -i ' +pf_phase+'/'+pf_name+'/inventory -e platform_phase='+pf_phase+' -e platform_name='+pf_name+' -e "artifact2install='+otml_service+'" -e "version2install='+release+'"')
-	    shell()	
+	    httpRequest('http://localhost:8080') {
+            httpMode('GET')
+            returnCodeBuildRelevant()
+            logResponseBody()
+        }
     }
 	publishers {
 		extendedEmail {

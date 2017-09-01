@@ -23,7 +23,7 @@ job('test_otml-live') {
 	publishers {
 		extendedEmail {
             defaultSubject('JENKINS BUILD FOR UM LIVE version '+release)
-            defaultContent('$DEFAULT_CONTENT.\n\nNew version installed is ' +release+'\n\nIf build is Successful, it seems that a test have been made on the API http://10.105.93.168:8080/api/live/v1/channels/192 on respond a 200 OK')
+            defaultContent('$DEFAULT_CONTENT.\n\nNew version installed is ' +release+'\n\nIf build is Successful, it seems that a test have been made on the API http://10.105.93.168:8080/api/live/v1/channels/192 and respond a 200 OK')
 			recipientList(list_mail_recipient)
 			contentType('text/html')
 			triggers {

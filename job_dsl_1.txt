@@ -1,0 +1,28 @@
+def nexus_base_url='http://maven2.rd.francetelecom.fr/proxy/content/repositories/inhouse/com/orange/otml/'
+def otml_service='otml-live'
+def pf_phase='qualif'
+def pf_name='q5ntv2'
+def metadata_component_release_xml_url = nexus_base_url + otml_service + '/' + 'maven-metadata.xml'
+def metadata_component_release_xml_content = new XmlParser().parse(metadata_component_release_xml_url)
+def release = metadata_component_release_xml_content.versioning.release.text()
+def base_dir='/data/ansible_export/ansible/nnxh2760/eat-ansible-UM/IAS'
+
+job('test_otml-live') {
+    steps {
+        shell('cd '+base_dir+';/usr/bin/ansible-playbook deploy.yml -i ' +pf_phase+'/'+pf_name+'/inventory -e platform_phase='+pf_phase+' -e platform_name='+pf_name+' -e "artifact2install='+otml_service+'" -e "version2install='+release+'"')
+	    shell()	
+    }
+	publishers {
+		extendedEmail {
+            defaultSubject('JENKINS BUILD FOR UM LIVE version '+release)
+            defaultContent('$DEFAULT_CONTENT.\nNew version installed is ' +release)
+			recipientList('samuel.quenea@orange.com')
+			contentType('text/html')
+			triggers {
+				always()
+			}
+			attachBuildLog(true)
+		}
+	}
+	
+}
